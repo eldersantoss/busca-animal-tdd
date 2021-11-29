@@ -17,7 +17,7 @@ class AnimaisTestCase(LiveServerTestCase):
         self.assertEqual(self.browser.title, "Busca Animais")
 
         # Usuário encontra input com placeholder para pesquisar por animal
-        input_animal = self.browser.find_element_by_id("buscar-animal")
+        input_animal = self.browser.find_element_by_id("animal")
         self.assertEqual(
             input_animal.get_attribute("placeholder"),
             "Exemplo: gato, cachorro, leão...",
