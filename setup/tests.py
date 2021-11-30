@@ -1,9 +1,31 @@
+from time import sleep
+
 from django.test import LiveServerTestCase
+from animais.models import Animal
+
 from selenium import webdriver
 
 
-class AnimaisTestCase(LiveServerTestCase):
+class AnimaisTests(LiveServerTestCase):
     def setUp(self) -> None:
+        Animal.objects.create(
+            name="leão",
+            predator=True,
+            poisonous=False,
+            domestic=False,
+        )
+        Animal.objects.create(
+            name="porco",
+            predator=False,
+            poisonous=False,
+            domestic=True,
+        )
+        Animal.objects.create(
+            name="girafa",
+            predator=False,
+            poisonous=False,
+            domestic=False,
+        )
         self.browser = webdriver.Chrome()
 
     def tearDown(self) -> None:
@@ -20,15 +42,18 @@ class AnimaisTestCase(LiveServerTestCase):
         input_animal = self.browser.find_element_by_id("animal")
         self.assertEqual(
             input_animal.get_attribute("placeholder"),
-            "Exemplo: gato, cachorro, leão...",
+            "Exemplo: cachorro, leão...",
         )
 
         # Usuário digita "leão" e clica no botão pesquisar
-        input_animal.send_keys("leão")
+        sleep(3)
+        input_animal.send_keys("girafa")
+        sleep(1)
         self.browser.find_element_by_id("pesquisar").click()
+        sleep(3)
 
         # Usuário recebe como resposta 4 características do animal pesquisado
-        animals_characteristics = self.browser.find_elements_by_class_name(
-            "result-description"
+        animal_characteristics = self.browser.find_elements_by_class_name(
+            "animal-characteristics"
         )
-        self.assertAlmostEquals(len(animals_characteristics), 4)
+        self.assertEqual(len(animal_characteristics), 4)

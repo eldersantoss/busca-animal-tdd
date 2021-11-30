@@ -1,23 +1,31 @@
 from django.test import TestCase
+from animais.models import Animal
 
 
-class IndexViewTestCase(TestCase):
-    def test_index_view_returns_animal_characteristics(self):
-        """Testa se a view index retorna os dados das características dos animais
+class IndexViewTests(TestCase):
+    def setUp(self) -> None:
+        Animal.objects.create(
+            name="gato",
+            predator=True,
+            poisonous=False,
+            domestic=True,
+        )
 
-        1. A view index deve receber a requisição do tipo GET e extrair o query
-        param de chave 'animal' referente ao nome do animal.
+    def test_index_view_render_index_template(self):
+        """Testa se a view index renderiza corretamente o template no primeiro
+        acesso (sem inputs)"""
 
-        2. Após extrair o nome do animal dos query params da requisição, deve ser
-        realizada uma busca na base de dados por uma instância de animal cujo nome
-        seja compatível ao que foi fornecido.
+        response = self.client.get("/")
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, "index.html")
 
-            2.1. Caso o animal seja encontrado: deve ser retornada a renderização do
-            template index junto com um objeto de contexto contendo as informações
-            extraídas dos atributos da instância na chave 'animal_characteristics'.
+    def test_index_view_returns_animal_characteristics_when_input_was_filled(self):
+        """Testa se a view index retorna os dados das características do animal
+        cujo nome foi passado como entrdada"""
 
-            2.2. Caso o animal não seja encontrado: deve ser retornada a renderização
-            do template index junto com um objeto de contexto contendo um dicionário
-            vazio na chave 'animal_characteristics'.
-
-        """
+        response = self.client.get("/", {"animal": "gato"})
+        animal_data = response.context["animals"][0]
+        self.assertIn("name", dir(animal_data))
+        self.assertIn("predator", dir(animal_data))
+        self.assertIn("poisonous", dir(animal_data))
+        self.assertIn("domestic", dir(animal_data))
