@@ -1,15 +1,10 @@
 from django.test import TestCase
-from animais.models import Animal
+from model_mommy import mommy
 
 
 class IndexViewTests(TestCase):
     def setUp(self) -> None:
-        Animal.objects.create(
-            name="gato",
-            predator=True,
-            poisonous=False,
-            domestic=True,
-        )
+        self.animal = mommy.make("Animal")
 
     def test_index_view_render_index_template(self):
         """Testa se a view index renderiza corretamente o template no primeiro
@@ -23,7 +18,7 @@ class IndexViewTests(TestCase):
         """Testa se a view index retorna os dados das características do animal
         cujo nome foi passado como entrdada"""
 
-        response = self.client.get("/", {"animal": "gato"})
+        response = self.client.get("/", {"animal": str(self.animal)})
         animal_data = response.context["animals"][0]
         self.assertIn("name", dir(animal_data))
         self.assertIn("predator", dir(animal_data))

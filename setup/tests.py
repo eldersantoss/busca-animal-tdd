@@ -1,31 +1,12 @@
-from time import sleep
-
 from django.test import LiveServerTestCase
-from animais.models import Animal
+from model_mommy import mommy
 
 from selenium import webdriver
 
 
 class AnimaisTests(LiveServerTestCase):
     def setUp(self) -> None:
-        Animal.objects.create(
-            name="leão",
-            predator=True,
-            poisonous=False,
-            domestic=False,
-        )
-        Animal.objects.create(
-            name="porco",
-            predator=False,
-            poisonous=False,
-            domestic=True,
-        )
-        Animal.objects.create(
-            name="girafa",
-            predator=False,
-            poisonous=False,
-            domestic=False,
-        )
+        self.animal = mommy.make("Animal")
         self.browser = webdriver.Chrome()
 
     def tearDown(self) -> None:
@@ -46,11 +27,8 @@ class AnimaisTests(LiveServerTestCase):
         )
 
         # Usuário digita "leão" e clica no botão pesquisar
-        sleep(3)
-        input_animal.send_keys("girafa")
-        sleep(1)
+        input_animal.send_keys(str(self.animal))
         self.browser.find_element_by_id("pesquisar").click()
-        sleep(3)
 
         # Usuário recebe como resposta 4 características do animal pesquisado
         animal_characteristics = self.browser.find_elements_by_class_name(

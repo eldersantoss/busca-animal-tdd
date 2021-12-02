@@ -1,16 +1,13 @@
 from django.test import TestCase
-
-from animais.models import Animal
+from model_mommy import mommy
 
 
 class AnimalModelTests(TestCase):
     def setUp(self) -> None:
-        self.animal = Animal.objects.create(
-            name="gato",
-            predator=False,
-            poisonous=False,
-            domestic=True,
-        )
+        self.animal = mommy.make("Animal")
+
+    def test_animal_str_returns_name(self):
+        self.assertEqual(str(self.animal), self.animal.name)
 
     def test_animal_has_all_characteristics(self):
         """Testa se as instâncias de Animal possuem todas as características
